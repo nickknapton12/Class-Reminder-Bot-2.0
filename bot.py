@@ -1,6 +1,7 @@
 import discord
 import time
 import asyncio
+
 from src.db_functions import *
 from src.reminder_functions import *
 
@@ -24,7 +25,7 @@ client = discord.Client(intents = intents,activity=discord.Activity(type=discord
 @client.event
 async def on_ready():
     guild = client.get_guild(802294668913410129)
-    
+
     for member in guild.members:
         if not member.bot:
             if find_user(member) == None:
@@ -34,17 +35,19 @@ async def on_ready():
                 send_back_up_message(client, member)
         else:
             print(f"Bot acount: {member.name}")
+    print("done setup")
 
 # OnMessage Definition, runs everytime bot detects a message
 @client.event
-async def on_messages(message):
+async def on_message(message):
     if message.author != client.user:
-        #Should send a list of all current reminders to user based on their subscritptions
-        #if in a DM or reminders related to class if in a class related massage
         if message.content == "!reminders":
-            print()
-        if message.content[0,6] == "!remind":
-            print()
+            if type(message.channel) == discord.DMChannel:
+                send_user_current_reminders(client, message.author)
+            else:
+                send_channel_reminders(client, message.channel.name)
+        elif message.content[0:6] == "!remind":
+            print("")
         
 
 # Starts Bot
