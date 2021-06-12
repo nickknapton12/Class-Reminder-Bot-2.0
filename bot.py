@@ -1,6 +1,8 @@
 import discord
 import time
 import asyncio
+from src.db_functions import *
+from src.reminder_functions import *
 
 #Reads token from a token.txt file placed in the .src directory. Token should be the token
 #given when discord bot is registered and should remane secret at all times!
@@ -22,10 +24,14 @@ client = discord.Client(intents = intents,activity=discord.Activity(type=discord
 @client.event
 async def on_ready():
     guild = client.get_guild(802294668913410129)
+    
     for member in guild.members:
         if not member.bot:
-            await member.send('Welcome Message')
-            print(f"Sending {member.name}")
+            if find_user(member) == None:
+                add_user(member)
+                send_welcome_message(client, member)
+            else:
+                send_back_up_message(client, member)
         else:
             print(f"Bot acount: {member.name}")
 
