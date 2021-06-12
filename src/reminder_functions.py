@@ -22,3 +22,7 @@ def send_user_current_reminders(client, user):
 # Sends a message of all the current reminders specific to the channel.
 def send_channel_reminders(client, channel):
     print("")
+
+# Adds a reminder to the db
+def add_reminder(the_class, the_reminder, month, day, hour, minute):
+    print("")
