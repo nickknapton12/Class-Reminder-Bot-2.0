@@ -41,14 +41,20 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.author != client.user:
+
         if message.content == "!reminders":
             if type(message.channel) == discord.DMChannel:
                 send_user_current_reminders(client, message.author)
             else:
                 send_channel_reminders(client, message.channel.name)
-        elif message.content[0:6] == "!remind":
-            print("")
-        
+
+        elif message.content[0:7] == "!remind":
+            matches = re.split("\s", message.content)
+            print(matches.__len__())
+            if matches.__len__() == 7:
+                add_reminder(matches[1], matches[2], matches[3], matches[4], matches[5], matches[6])
+            else:
+                await message.author.send("Please correct the format")
 
 # Starts Bot
 client.run(token)
