@@ -1,2 +1,5 @@
 #Bot Token
 /src/token.txt
+
+#PyCache
+/src/__pycache__

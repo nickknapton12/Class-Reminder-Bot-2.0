@@ -19,3 +19,5 @@ A discord bot to manage and remind students of upcoming assignments, labs, tests
 
 
 ## Setup
+
+mongodb+srv://nickknapton:<password>@cluster0.ukkj3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
