@@ -12,11 +12,14 @@ def add_user(user):
     print(user_to_insert)
     collection.insert_one(user_to_insert)
 
+# Finds a user in the db
 def find_user(user):
     return collection.find_one({"_id": user.id})
 
+# Adds a class to the user in the db.
 def add_class(user, the_class):
     collection.update_one({"_id": user.id}, {"$addToSet": {"classes": the_class}})
     
+# Removes a class from the user in the db
 def remove_class(user, the_class):
     collection.update_one({"_id": user.id}, {"$pull": {"classes": the_class}})
