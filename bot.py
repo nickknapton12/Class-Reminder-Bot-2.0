@@ -1,6 +1,7 @@
 import discord
 import time
 import asyncio
+import re
 
 from src.db_functions import *
 from src.reminder_functions import *
@@ -17,6 +18,7 @@ token = read_token()
 # Specifys intent and gives access to all discord members in a server
 intents = discord.Intents.default()
 intents.members = True
+intents.messages
 
 # Setup for Client
 client = discord.Client(intents = intents,activity=discord.Activity(type=discord.ActivityType.watching, name="out for you!"))
@@ -25,12 +27,10 @@ client = discord.Client(intents = intents,activity=discord.Activity(type=discord
 @client.event
 async def on_ready():
     guild = client.get_guild(802294668913410129)
-
     for member in guild.members:
         if not member.bot:
-            if find_user(member) == None:
-                add_user(member)
-                send_welcome_message(client, member)
+            if find_user_by_id(member.id) == None:
+                await send_welcome_message(client, member)
             else:
                 send_back_up_message(client, member)
         else:
@@ -52,9 +52,42 @@ async def on_message(message):
             matches = re.split("\s", message.content)
             print(matches.__len__())
             if matches.__len__() == 7:
-                add_reminder(matches[1], matches[2], matches[3], matches[4], matches[5], matches[6])
+                request_reminder(matches[1], matches[2], matches[3], matches[4], matches[5], matches[6])
             else:
                 await message.author.send("Please correct the format")
+
+
+@client.event
+async def on_raw_reaction_add(payload):
+    channel = await client.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+
+    if message.author == client.user:
+        if sign_up_message(payload.message_id):
+            if payload.emoji.name == "0️⃣":
+                print("0")
+            if payload.emoji.name == "1️⃣":
+                print("1")
+            if payload.emoji.name == "2️⃣":
+                print("2")
+            if payload.emoji.name == "3️⃣":
+                print("3")
+            if payload.emoji.name == "4️⃣":
+                print("4")
+            if payload.emoji.name == "5️⃣":
+                print("5")
+            if payload.emoji.name == "6️⃣":
+                print("6")
+            if payload.emoji.name == "7️⃣":
+                print("7")
+            if payload.emoji.name == "8️⃣":
+                print("8")
+            if payload.emoji.name == "9️⃣":
+                print("9")
+        else:
+            if payload.emoji.name == "☑️":
+                await message.delete()
+
 
 # Starts Bot
 client.run(token)

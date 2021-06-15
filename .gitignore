@@ -1,5 +1,6 @@
 #Bot Token
 /src/token.txt
+/src/db_account.txt
 
 #PyCache
 /src/__pycache__
