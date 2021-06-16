@@ -6,6 +6,21 @@ minor_classes = ["COMS363", "ENGG209", "ENGG481", "ENGG513", "BMEN401"]
 
 reminder_request_channel = "854207771666153472"
 
+dates = {
+    '1': 'Jan',
+    '2': 'Feb',
+    '3': 'Mar',
+    '4': 'Apr',
+    '5': 'May',
+    '6': 'Jun',
+    '7': 'Jul',
+    '8': 'Aug',
+    '9': 'Sep',
+    '10': 'Oct',
+    '11': 'Nov',
+    '12': 'Dec',
+}
+
 # Should query db for all reminders and users, cache them, then go through
 # all users and send their reminders. Could store reminders in hashmap and
 # when looping through users, just search for each reminder the user is subed
@@ -47,8 +62,16 @@ async def send_back_up_message(client, user):
     await back_up_message.add_reaction("☑️")
 
 # Sends a DM to User with personilized reminders.
-def send_user_current_reminders(client, user):
-    print("")
+async def send_user_current_reminders(client, user):
+    user_info = find_user_by_id(user.id)
+    classes = user_info["classes"]
+    results = get_specific_reminders(classes)
+    message = discord.Embed(title="Your Reminders:")
+    for docs in results:
+        message.add_field(name=(f"{docs['Class']} {docs['Reminder']}"), value=(f"{dates[docs['Month']]} {docs['Day']} at {docs['Hour']}:{docs['Minute']}"))
+    sent_message = await user.send(embed=message)
+    await sent_message.add_reaction("☑️")
+    
 
 # Sends a message of all the current reminders specific to the channel.
 def send_channel_reminders(client, channel):

@@ -46,9 +46,9 @@ async def on_message(message):
 
         if message.content == "!reminders":
             if type(message.channel) == discord.DMChannel:
-                send_user_current_reminders(client, message.author)
+                await send_user_current_reminders(client, message.author)
             else:
-                send_channel_reminders(client, message.channel.name)
+                await send_channel_reminders(client, message.channel.name)
 
         elif message.content[0:7] == "!remind":
             matches = re.split("\s", message.content)

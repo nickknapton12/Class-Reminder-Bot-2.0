@@ -49,3 +49,8 @@ def approve_reminder(reminder_id):
 
 def delete_reminder(reminder_id):
     collection2.delete_one({"_id": ObjectId(reminder_id)})
+
+def get_specific_reminders(classes):
+    return collection2.find( { "$and": [ {"Class": {"$in": classes}}, {"Approved": True} ]} )
+    
+    
