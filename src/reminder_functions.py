@@ -1,4 +1,5 @@
 import discord
+from datetime import datetime
 from src.db_functions import *
 
 major_classes = ["ENSF480","ENCM511","CPSC471","CPSC457"]
@@ -25,8 +26,27 @@ dates = {
 # all users and send their reminders. Could store reminders in hashmap and
 # when looping through users, just search for each reminder the user is subed
 # to making only one loop necassary.
-def send_morning_reminders(client):
-    print("")
+async def send_morning_reminders(client):
+    users_return = get_all_users()
+    reminders_return = get_all_reminders()
+    users = list(users_return)
+    reminders = list(reminders_return)
+
+    for user in users:
+        the_user = await client.fetch_user(user["_id"])
+        message = discord.Embed(title="Your Morning Reminders:")
+        reminder_count = 0
+        for reminder in reminders:
+            if (reminder["Class"].upper()) in (user["classes"]):
+                reminder_count += 1
+                message.add_field(name=(f"{reminder['Class']} {reminder['Reminder']}"), value=(f"{dates[reminder['Month']]} {reminder['Day']} at {reminder['Hour']}:{reminder['Minute']} {reminder['amOrPm']}"),inline=False)
+        if reminder_count == 0:
+            message.add_field(name="Nothing coming up!", value="Take a break and have a brew, you deserve it!")
+        sent_message = await the_user.send(embed=message)
+        await sent_message.add_reaction("☑️")
+        update_morning_reminder_count()
+
+                
 
 # Sends a welcome message to a new user with signup info, then caches and saves to db
 async def send_welcome_message(client, user):
@@ -54,6 +74,7 @@ async def send_welcome_message(client, user):
     await sign_up_message.add_reaction("7️⃣")
     await sign_up_message.add_reaction("8️⃣")
     add_user(user, sign_up_message)
+    update_user_count()
 
 # Sends a "Back Up" to existing users when the bot comes back online.
 async def send_back_up_message(client, user):
@@ -65,14 +86,40 @@ async def send_back_up_message(client, user):
 async def send_user_current_reminders(client, user):
     user_info = find_user_by_id(user.id)
     classes = user_info["classes"]
-    results = get_specific_reminders(classes)
+    classes_processed = []
+    for x in classes:
+        classes_processed.append(x.lower())
+    results = get_specific_reminders(classes_processed)
     message = discord.Embed(title="Your Reminders:")
     for docs in results:
-        message.add_field(name=(f"{docs['Class']} {docs['Reminder']}"), value=(f"{dates[docs['Month']]} {docs['Day']} at {docs['Hour']}:{docs['Minute']}"))
+        message.add_field(name=(f"{docs['Class']} {docs['Reminder']}"), value=(f"{dates[docs['Month']]} {docs['Day']} at {docs['Hour']}:{docs['Minute']} {docs['amOrPm']}"), inline=False)
     sent_message = await user.send(embed=message)
     await sent_message.add_reaction("☑️")
+    update_user_requested_reminder_count()
+    
     
 
 # Sends a message of all the current reminders specific to the channel.
-def send_channel_reminders(client, channel):
-    print("")
+async def send_channel_reminders(client, channel):
+    results = get_specific_reminders([channel.name])
+    message = discord.Embed(title=f"{channel.name.upper()} Reminders:")
+    for docs in results:
+        message.add_field(name=(f"{docs['Class'].upper()} {docs['Reminder']}"), value=(f"{dates[docs['Month']]} {docs['Day']} at {docs['Hour']}:{docs['Minute']} {docs['amOrPm']}"), inline=False)
+    sent_message = await channel.send(embed=message)
+    await sent_message.add_reaction("☑️")
+    update_user_requested_reminder_count()
+
+
+# Go's through all reminders and checks if they have past or not.
+def check_for_expired_reminders():
+    current_month = datetime.now().month
+    current_day = datetime.now().day
+
+    reminders = get_all_reminders()
+
+    for reminder in reminders:
+        if int(reminder["Month"]) < current_month:
+            delete_reminder(reminder["_id"])
+        else:
+            if int(reminder["Day"]) < current_day:
+                delete_reminder(reminder["_id"])
