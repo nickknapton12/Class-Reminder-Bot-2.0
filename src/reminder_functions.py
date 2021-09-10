@@ -41,7 +41,8 @@ async def send_morning_reminders(client):
                 reminder_count += 1
                 message.add_field(name=(f"{reminder['Class']} {reminder['Reminder']}"), value=(f"{dates[reminder['Month']]} {reminder['Day']} at {reminder['Hour']}:{reminder['Minute']} {reminder['amOrPm']}"),inline=False)
         if reminder_count == 0:
-            message.add_field(name="Nothing coming up!", value="Take a break and have a brew, you deserve it!")
+            if user["classes"].length != 0:
+                message.add_field(name="Nothing coming up!", value="Take a break and have a brew, you deserve it!")
         sent_message = await the_user.send(embed=message)
         await sent_message.add_reaction("☑️")
         update_morning_reminder_count()
